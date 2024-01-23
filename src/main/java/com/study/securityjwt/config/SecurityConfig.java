@@ -1,5 +1,6 @@
 package com.study.securityjwt.config;
 
+import com.study.securityjwt.jwt.JWTFilter;
 import com.study.securityjwt.jwt.LoginFilter;
 import com.study.securityjwt.util.JWTUtil;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,7 @@ public class SecurityConfig {
     // AuthenticationConfiguraion 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
 
-    // JWTUtil 생성자 우비
+    // JWTUtil 생성자 주입
     private final JWTUtil jwtUtil;
 
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
@@ -65,6 +66,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
 
         // 필터 등록
+        http    
+                // 해당 필터 이전에 수행 (수행 할 필터, 기준 필터)
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
         http
                 // 해당 필터 자리에서 수행 (수행 할 필터, 대체 필터 자리)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil), UsernamePasswordAuthenticationFilter.class);
