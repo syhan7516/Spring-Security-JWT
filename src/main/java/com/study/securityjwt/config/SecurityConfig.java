@@ -3,6 +3,7 @@ package com.study.securityjwt.config;
 import com.study.securityjwt.jwt.JWTFilter;
 import com.study.securityjwt.jwt.LoginFilter;
 import com.study.securityjwt.util.JWTUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +14,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -77,6 +82,33 @@ public class SecurityConfig {
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // CORS 설정
+        http
+                .cors((corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+
+                        CorsConfiguration configuration = new CorsConfiguration();
+
+                        // 3000번 포트 설정
+                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                        // 모든 메서드 허용
+                        configuration.setAllowedMethods(Collections.singletonList("*"));
+                        // Credentials 설정을 하면 ture 설정
+                        configuration.setAllowCredentials(true);
+                        // 허용 헤더
+                        configuration.setAllowedHeaders(Collections.singletonList("*"));
+                        // 허용 시간
+                        configuration.setMaxAge(3600L);
+
+                        // 헤더를 보낼 때 JWT 위해서 Authorization 포함
+                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+
+                        return configuration;
+                    }
+                })));
 
         return http.build();
     }
