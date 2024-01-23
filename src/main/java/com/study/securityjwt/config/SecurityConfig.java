@@ -1,6 +1,7 @@
 package com.study.securityjwt.config;
 
 import com.study.securityjwt.jwt.LoginFilter;
+import com.study.securityjwt.util.JWTUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,9 +20,13 @@ public class SecurityConfig {
     // AuthenticationConfiguraion 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration) {
+    // JWTUtil 생성자 우비
+    private final JWTUtil jwtUtil;
+
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
 
         this.authenticationConfiguration = authenticationConfiguration;
+        this.jwtUtil = jwtUtil;
     }
 
     // AuthenticationManager 등록
@@ -62,7 +67,7 @@ public class SecurityConfig {
         // 필터 등록
         http
                 // 해당 필터 자리에서 수행 (수행 할 필터, 대체 필터 자리)
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         // 세션 설정 (JWT를 통한 인증/인가를 위해서 세션을 STATELESS 상태로 설정)
         http
